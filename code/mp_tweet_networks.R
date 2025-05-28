@@ -29,9 +29,9 @@ file.stem <- paste0("C:/Users/",
                     Sys.info()["user"],
                     "/OneDrive - University of Edinburgh/")
 
-setwd(paste0(file.stem,"research/sicss_networks/sicss_networks"))
+setwd(paste0(file.stem,"research/networks_sicss/networks_sicss"))
 
-### download and restructure MP tweet data ##########
+### read and restructure MP tweet data ##########
 
 tweets <- readRDS(gzcon(url("https://github.com/cjbarrie/CTA-ED/blob/main/data/wordembed/twts_corpus_sample.rds?raw=true")))%>%
   rename(retweet_username = reftweet_username) %>%
