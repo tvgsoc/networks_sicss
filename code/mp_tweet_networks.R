@@ -4,12 +4,10 @@
 library(tidyverse)    # data management
 library(ggplot2)      # plots
 library(igraph)       # network analysis
-library(academictwitteR)
-#library(ForceAtlas2) # force atlas is a nice network layout, but we won't use it here
 library(RColorBrewer) # some functions for colors in in plots
-library(lubridate)    # some date functions
-library(zoo)          # some more data functions
 library(classInt)     # classIntervals function - used in assigning colors
+library(lubridate)    # some date functions
+library(zoo)          # some more date functions
 library(stringr)      # text processing
 
 # function to extract main component from igraph object
@@ -25,13 +23,13 @@ Mode <- function(x) {
 }
 
 # set an appropriate working directory for your system
-# working directory should contain the subfolder "results_MP_2025"
+# working directory should contain the subfolder "results"
 
 file.stem <- paste0("C:/Users/",
                     Sys.info()["user"],
                     "/OneDrive - University of Edinburgh/")
 
-setwd(paste0(file.stem,"research/twitter"))
+setwd(paste0(file.stem,"research/sicss_networks/sicss_networks"))
 
 ### download and restructure MP tweet data ##########
 
@@ -128,7 +126,7 @@ rt.samp1.attr <- data.frame(username = V(rt.samp1.ig)$name) %>% # retrieve the u
 
 plot(rt.samp1.ig)      # first, note that the igraph default plot is not very helpful
 
-pdf("results_MP_2025/rt-samp1.pdf", width = 12)   # I like to save plots as pdf, which has high resolution
+pdf("results/rt-samp1.pdf", width = 12)   # I like to save plots as pdf, which has high resolution
 plot(simplify(rt.samp1.ig), # simplify removes loops
      vertex.label = NA, # ignore vertex labels
      vertex.size = 4,   # set node size
@@ -137,7 +135,7 @@ plot(simplify(rt.samp1.ig), # simplify removes loops
 dev.off()
 
 # add party labels
-pdf("results_MP_2025/rt-samp1-partylab.pdf", width = 12)
+pdf("results/rt-samp1-partylab.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      vertex.label = NA, 
      vertex.size = 4,
@@ -176,7 +174,7 @@ plot(eigen_centrality(rt.samp1.ig)$vector, page_rank(rt.samp1.ig)$vector)
 
 ### plots with node size scaled to centrality
 
-pdf("results_MP_2025/rt-samp1-partylab-outdegree.pdf", width = 12)
+pdf("results/rt-samp1-partylab-outdegree.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      vertex.label = ifelse(degree(rt.samp1.ig, mode = "out")>=39, rt.samp1.attr$username, NA), 
      vertex.label.color = "chartreuse",
@@ -185,7 +183,7 @@ plot(simplify(rt.samp1.ig),
      edge.arrow.size = 0)
 dev.off()
 
-pdf("results_MP_2025/rt-samp1-partylab-pagerank.pdf", width = 12)
+pdf("results/rt-samp1-partylab-pagerank.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      vertex.label = ifelse(page_rank(rt.samp1.ig)$vector>=.01, rt.samp1.attr$username, NA), 
      vertex.label.color = "chartreuse",
@@ -279,7 +277,7 @@ modularity(rt.samp1.labelprop)
 
 
 
-pdf("results_MP_2025/rt-samp1-greedylab.pdf", width = 12)
+pdf("results/rt-samp1-greedylab.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      #layout = l,
      vertex.label = NA, 
@@ -288,7 +286,7 @@ plot(simplify(rt.samp1.ig),
      edge.arrow.size = 0)
 dev.off()
 
-pdf("results_MP_2025/rt-samp1-louvainlab.pdf", width = 12)
+pdf("results/rt-samp1-louvainlab.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      #layout = l,
      vertex.label = NA, 
@@ -297,7 +295,7 @@ plot(simplify(rt.samp1.ig),
      edge.arrow.size = 0)
 dev.off()
 
-pdf("results_MP_2025/rt-samp1-leidenlab.pdf", width = 12)
+pdf("results/rt-samp1-leidenlab.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      #layout = l,
      vertex.label = NA, 
@@ -306,7 +304,7 @@ plot(simplify(rt.samp1.ig),
      edge.arrow.size = 0)
 dev.off()
 
-pdf("results_MP_2025/rt-samp1-labelprop.pdf", width = 12)
+pdf("results/rt-samp1-labelprop.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      #layout = l,
      vertex.label = NA, 
@@ -365,7 +363,7 @@ class <- classIntervals(plotvar,
 colcode <- findColours(class, 
                        plotclr)
 
-pdf("results_MP_2025/rt-samp1-leiden-leancons.pdf", width = 12)
+pdf("results/rt-samp1-leiden-leancons.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      vertex.label = NA, 
      vertex.size = 4,
@@ -373,7 +371,7 @@ plot(simplify(rt.samp1.ig),
      edge.arrow.size = 0)
 dev.off()
 
-pdf("results_MP_2025/rt-samp1-labelprop-party.pdf", width = 12)
+pdf("results/rt-samp1-labelprop-party.pdf", width = 12)
 plot(simplify(rt.samp1.ig), 
      vertex.label = NA, 
      vertex.size = 4,
@@ -436,7 +434,7 @@ mentions.samp.attr <- data.frame(
   left_join(party.id,
             by = "username")
 
-pdf("results_MP_2025/mentions-samp-partylab.pdf", width = 12)
+pdf("results/mentions-samp-partylab.pdf", width = 12)
 plot(simplify(mentions.ig), 
      vertex.label = NA, 
      vertex.size = 4,
@@ -496,7 +494,7 @@ for(i in 1:length(ig.rt.monthly)){
 dates <- unique(retweets.monthly$year.month)
 
 for(i in 1:length(ig.rt.monthly)){
-pdf(paste0("results_MP_2025/rt-monthly-", dates[i],".pdf"), width = 12)
+pdf(paste0("results/rt-monthly-", dates[i],".pdf"), width = 12)
   plot(simplify(ig.rt.monthly[[i]]), 
       vertex.label = NA, 
       vertex.size = 4,
@@ -537,7 +535,7 @@ data.frame(
 
 
 for(i in 1:length(ig.rt.monthly)){
-  pdf(paste0("results_MP_2025/rt-monthly-labelprop-", dates[i],".pdf"), width = 12)
+  pdf(paste0("results/rt-monthly-labelprop-", dates[i],".pdf"), width = 12)
   plot(simplify(ig.rt.monthly[[i]]), 
        vertex.label = NA, 
        vertex.size = 5,
@@ -584,11 +582,11 @@ data.frame(
                                                    "Leiden"))+
   theme_bw(base_size = 16)
 
-ggsave("results_MP_2023/modularity-trend.pdf", width = 12, height = 10)
+ggsave("results/modularity-trend.pdf", width = 12, height = 10)
 
 
 for(i in 1:length(ig.rt.monthly)){
-  pdf(paste0("results_MP_2023/rt-monthly-leiden-", dates[i],".pdf"), width = 12)
+  pdf(paste0("results/rt-monthly-leiden-", dates[i],".pdf"), width = 12)
   plot(simplify(ig.rt.monthly[[i]]), 
        vertex.label = NA, 
        vertex.size = 5,
