@@ -4,6 +4,8 @@
 
 ### by contact type ####################################
 
+contact.type[contact.type$digital==F,]
+
 digital <- graph_from_edgelist(
             as.matrix(
               contact.type[contact.type$digital==T,c("ego.anon","alter.anon")]

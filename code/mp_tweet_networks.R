@@ -444,6 +444,16 @@ dev.off()
 
 # now try replicating analyses above with the mentions network
 
+mentions.leiden <- cluster_leiden(as.undirected(simplify(mentions.ig)),
+                                  objective_function = "modularity",
+                                  # set initial values to party, or 99 if unobserverved
+                                  #initial_membership = ifelse(!is.na(mentions.samp.attr$party),
+                                  #                            as.numeric(as.factor(mentions.samp1.attr$party)),
+                                  #                            99),
+                                  resolution_parameter = .5)
+
+modularity(mentions.ig, mentions.leiden$membership)
+
 
 ### Networks over time: construct monthly retweet networks #######
 

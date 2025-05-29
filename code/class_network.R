@@ -1,5 +1,5 @@
 
-### packages, working directory
+### packages, working directory ###########################
 
 library(tidyverse)
 library(igraph)
@@ -50,8 +50,7 @@ plot(allcontact.ig,
 # decrease arrow size
 plot(allcontact.ig,
      vertex.label = NA,
-     edge.arrow.size = .5,
-     layout = l)
+     edge.arrow.size = .5)
 
 
 # match node attributes with network data
@@ -77,7 +76,7 @@ plot(allcontact.ig,
 
 # scale node size to a network centrality measure
 
-plot(allcontact.ig,
+plot(simplify(allcontact.ig),
      vertex.label = NA,
      edge.arrow.size = .2,
      vertex.color = factor(attr$degree),
