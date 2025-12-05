@@ -92,7 +92,7 @@ rt.samp1.ig <- graph_from_edgelist(                       # create igraph object
   as.matrix(rt.samp1[,c("retweet_username","username")]), # igraph demands a two-column matrix
   directed = T                                            # our data are directed
 )
-rt.samp1.ig$weight <- rt.samp1$n_retweets                 # AFAIK we have to add any weights after creating the object
+E(rt.samp1.ig)$weight <- rt.samp1$n_retweets                 # AFAIK we have to add any weights after creating the object
 
 
 # now create attribute data: legislator party id
@@ -119,6 +119,12 @@ V(rt.samp1.ig)$name
 rt.samp1.attr <- data.frame(username = V(rt.samp1.ig)$name) %>% # retrieve the usernames from our network
   mutate(node.sequence = row_number()) %>%                        # I create a numerical id to keep track of node order
   left_join(party.id, by = "username")
+
+
+### extract network of tweets between mps
+
+mp.el <- rt.samp1 %>%
+  filter(retweet_username %in% party.id$username)
 
 
 
@@ -495,9 +501,22 @@ for(i in 1:length(ig.rt.monthly)){
                                            nodes.monthly[[i]]$party.color)
   nodes.monthly[[i]] <- nodes.monthly[[i]][order(nodes.monthly[[i]]$node.seq),]
   # note that we can also assign vertex attributes to the igraph object
+  V(ig.rt.monthly[[i]])$party <- nodes.monthly[[i]]$party
   V(ig.rt.monthly[[i]])$vertex.color <- nodes.monthly[[i]]$party.color
+  V(ig.rt.monthly[[i]])$is.mp <- !is.na(nodes.monthly[[i]]$party)
   
 }
+
+### MP only retweet networks ###########################
+
+ig.rt.monthly.mps <- mapply(induced.subgraph,
+                            graph = ig.rt.monthly,
+                            vids = lapply(ig.rt.monthly,
+                                          function(x) which(V(x)$is.mp ==T)))
+
+
+ig.rt.monthly.mps.mc <- lapply(ig.rt.monthly.mps, main.component)
+
 
 ### visualize all the networks ########
 
@@ -513,6 +532,19 @@ pdf(paste0("results/rt-monthly-", dates[i],".pdf"), width = 12)
       main = dates[i])
   dev.off()
 }  
+
+
+for(i in 1:length(ig.rt.monthly)){
+  jpeg(paste0("results/rt-monthly-mps-", dates[i],".jpg"))
+  plot(simplify(ig.rt.monthly.mps[[i]]), 
+       vertex.label = NA, 
+       vertex.size = 4,
+       vertex.color = V(ig.rt.monthly.mps[[i]])$vertex.color,
+       edge.arrow.size = 0,
+       main = dates[i])
+  dev.off()
+}  
+
 
 ### modularity analysis in monthly data ########
 
@@ -605,6 +637,29 @@ for(i in 1:length(ig.rt.monthly)){
        main = dates[i])
   dev.off()
 } 
+
+### modualarity in MP-only network based on party labels
+
+mp.party.modul <- mapply(modularity,
+                   x = ig.rt.monthly.mps,
+                   membership = lapply(lapply(ig.rt.monthly.mps, vertex_attr, "party"), function(x) as.numeric(as.factor(x))))
+
+mp.party.modul.mc <- mapply(modularity,
+                         x = ig.rt.monthly.mps.mc,
+                         membership = lapply(lapply(ig.rt.monthly.mps.mc, vertex_attr, "party"), function(x) as.numeric(as.factor(x))))
+
+
+
+
+
+
+data.frame(
+  date = as.Date(as.yearmon(dates)),
+  modul.party = unlist(mp.party.modul),
+  modul.party.mc = unlist(mp.party.modul.mc)) %>%
+  pivot_longer(-date) %>%
+  ggplot(., aes(y = value,x = date, color = name)) +
+    geom_line()
 
 ### centrality over time ######################
 
